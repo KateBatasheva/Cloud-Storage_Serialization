@@ -38,12 +38,26 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
             RequestDownload fileName = (RequestDownload) msg;
             if (Files.exists(clientFolder.resolve(fileName.getName()))) {
                 FilePackage sendPack = new FilePackage(clientFolder.resolve(fileName.getName()));
-                ctx.writeAndFlush(sendPack);
+                PathFilePackage [] pathFilePackages = new PathFilePackage[sendPack.getFileBytes().length/1024+1];
+                for (int i = 0; i <= sendPack.getFileBytes().length/1024; i++) {
+                    pathFilePackages[i] = new PathFilePackage(sendPack);
+                    ctx.writeAndFlush(pathFilePackages[i]);
+                }
+//                ctx.writeAndFlush(new FinishPack());
+//                ctx.writeAndFlush(sendPack);
             }
         }
-        if (msg instanceof FilePackage) {
-            FilePackage filePackage = (FilePackage) msg;
-            Files.write(clientFolder.resolve(filePackage.getFileName()), filePackage.getFileBytes(), StandardOpenOption.CREATE);
+//        if (msg instanceof FilePackage) {
+//            FilePackage filePackage = (FilePackage) msg;
+//            Files.write(clientFolder.resolve(filePackage.getFileName()), filePackage.getFileBytes(), StandardOpenOption.CREATE);
+//        }
+
+        if (msg instanceof PathFilePackage){
+            PathFilePackage pathFilePackage = (PathFilePackage) msg;
+            if (!Files.exists(clientFolder.resolve(pathFilePackage.getFileName()))) {
+                Files.createFile(clientFolder.resolve(pathFilePackage.getFileName()));
+            }
+            Files.write(clientFolder.resolve(pathFilePackage.getFileName()), pathFilePackage.getBufferPath(), StandardOpenOption.APPEND);
         }
 
         if (msg instanceof RequestRename) {
@@ -57,7 +71,7 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof RequestDelete) {
             RequestDelete fileName = (RequestDelete) msg;
             if (fileName.getPlaceWhereDelete() == 's'){
-                Files.deleteIfExists(clientFolder.resolve(nickName).resolve(fileName.getFileName()));
+                Files.deleteIfExists(clientFolder.resolve(fileName.getFileName()));
             }
             ctx.writeAndFlush(fileName);
         }
