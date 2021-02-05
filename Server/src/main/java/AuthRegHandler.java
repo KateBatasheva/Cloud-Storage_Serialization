@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 public class AuthRegHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthRegHandler.class);
-    DataClients dataClients;
     Autherization autherization;
 
     @Override
@@ -26,7 +25,6 @@ public class AuthRegHandler extends ChannelInboundHandlerAdapter {
         // registration step
         if (msg instanceof RegistrationForm) {
             RegistrationForm reg = (RegistrationForm) msg;
-//            if (dataClients.isClientExist(reg.getNickName())) {
             if (reg.getNickName().contains(" ") || reg.getPassword().contains(" ") ||
                     reg.getNickName().trim().length() < 3 || reg.getPassword().trim().length() < 3) {
                 ctx.writeAndFlush(new InfoMessage("NickName or password is too short or contains spaces")); // bad data
@@ -35,7 +33,6 @@ public class AuthRegHandler extends ChannelInboundHandlerAdapter {
             if (!autherization.registr(reg.getNickName(), reg.getPassword())){
                 ctx.writeAndFlush(new InfoMessage("Client already exist. Try to authorization.")); // client exist, auth please
             } else {
-//                    dataClients.add(new Client(reg.getNickName(), reg.getPassword()));
                     ctx.writeAndFlush(new InfoMessage("Registration success")); // success try
                 }
         }
@@ -43,13 +40,10 @@ public class AuthRegHandler extends ChannelInboundHandlerAdapter {
         // authorization step
         if (msg instanceof AuthForm) {
             AuthForm auth = (AuthForm) msg;
-//            if (!dataClients.isClientExist(auth.getNickName())) {
             if (!autherization.tryToAuth(auth.getNickName())) {
                 ctx.writeAndFlush(new InfoMessage("User not found")); // not found user
             } else {
-//                Client client = dataClients.getClient(auth.getNickName());
                 if (autherization.tryToAuthReturnPassword(auth.getNickName()).equals(auth.getPassword())) {
-//                    if (dataClients.checkPassword(client,auth.getPassword())){
                     ctx.writeAndFlush(auth); // right, open
                     ctx.channel().pipeline().addLast(new ClientStorageHandler(auth.getNickName()));
                     ctx.channel().pipeline().remove(this);
@@ -61,12 +55,9 @@ public class AuthRegHandler extends ChannelInboundHandlerAdapter {
 
         if (msg instanceof RequestAllUsers){
             RequestAllUsers users = (RequestAllUsers) msg;
-//            users.setUsers(dataClients.allUsers().toString());
             users.setUsers(autherization.showAllUsers());
             ctx.writeAndFlush(users);
         }
-
-
 
     }
 

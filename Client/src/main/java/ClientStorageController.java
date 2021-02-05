@@ -1,14 +1,10 @@
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Modality;
+
 import javafx.stage.Stage;
 import model.*;
 import org.slf4j.Logger;
@@ -16,11 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
+
 
 public class ClientStorageController {
 
@@ -47,93 +43,9 @@ public class ClientStorageController {
      RegistrationController regController;
     private Stage regStage;
 
-//public void showAllFrames (){
-//    mainStorage
-//}
 
     public void start() {
-//        GoToNet.start();
-//        boolean b;
-//        b = statRegistration();
-//        setAuthentif(false);
-//        Platform.runLater(() -> {
-//            stage = ((Stage) ta_clientName.getScene().getWindow());
-//            stage.setOnCloseRequest(event -> {
-//                try {
-//                    GoToNet.stop();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            });
-//        });
-//        if (b) {
-//            setAuthentif(true);
             startProcess();
-//        }
-
-
-//
-//        clientFolder = Paths.get("FolderClient");
-//        serverFolder = Paths.get("FolderServer");
-//        ta_serverName.appendText("Server Storage");
-//        ta_serverName.setEditable(false);
-//        Thread t = new Thread(() -> {
-//            try {
-//                while (true) {
-//                    Message message = GoToNet.readObject();
-//                    if (message instanceof PathFilePackage) {
-//                        PathFilePackage pack = (PathFilePackage) message;
-////                        LOG.debug(String.format("Client received a path # %d of %d paths", pack.getFilePathNum(),pack.getLen()));
-//                        if (!Files.exists(clientFolder.resolve(ta_clientName.getText()).resolve(pack.getFileName()))) {
-//                            Files.createFile(clientFolder.resolve(ta_clientName.getText()).resolve(pack.getFileName()));
-//                        }
-//                        Files.write(clientFolder.resolve(ta_clientName.getText()).resolve(pack.getFileName()), pack.getBufferPath(), StandardOpenOption.APPEND);
-////                        LOG.debug(String.format("Client download a path # %d of %d paths", pack.getFilePathNum(),pack.getLen()));
-//                    }
-////                            if (message instanceof FilePackage) {
-////                                FilePackage filePackage = (FilePackage) message;
-////                                Files.write(clientFolder.resolve(ta_clientName.getText()).resolve(filePackage.getFileName()), filePackage.getFileBytes(), StandardOpenOption.CREATE);
-////                                refreshLists(ta_clientName.getText());
-////                            }
-//                    if (message instanceof RequestRename) {
-//                        RequestRename fileName = (RequestRename) message;
-//                        if (Files.exists(clientFolder.resolve(ta_clientName.getText()).resolve(fileName.getOldName()))) {
-//                            Path file = clientFolder.resolve(ta_clientName.getText()).resolve(fileName.getOldName());
-//                            Files.move(file, file.resolveSibling(fileName.getNewName()));
-//                            refreshLists(ta_clientName.getText());
-//                        }
-//                    }
-//                    if (message instanceof RequestDelete) {
-//                        RequestDelete fileName = (RequestDelete) message;
-//                        if (fileName.getPlaceWhereDelete() == 'c') {
-//                            Files.deleteIfExists(clientFolder.resolve(ta_clientName.getText()).resolve(fileName.getFileName()));
-//                            refreshLists(ta_clientName.getText());
-//                        }
-//                    }
-//                    if (message instanceof ClientDelails) {
-//                        ClientDelails nickName = (ClientDelails) message;
-//                        ta_clientName.appendText(nickName.getNickName());
-//                        ta_clientName.setEditable(false);
-//                        if (!Files.exists(clientFolder)) {
-//                            Files.createDirectory(clientFolder);
-//                        }
-//                        refreshLists(ta_clientName.getText());
-//                    }
-//                    refreshLists(ta_clientName.getText());
-//                }
-//            } catch (Exception e) {
-//                LOG.error("e = ", e);
-//            } finally {
-//                try {
-//                    GoToNet.stop();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//        t.setDaemon(true);
-//        t.start();
-
     }
 
 
@@ -182,16 +94,6 @@ public class ClientStorageController {
                             refreshLists(ta_clientName.getText());
                         }
                     }
-//                    if (message instanceof ClientDelails) {
-//                        ClientDelails nickName = (ClientDelails) message;
-//                        ta_clientName.appendText(nickName.getNickName());
-//                        ta_clientName.setEditable(false);
-//                        if (!Files.exists(clientFolder)) {
-//                            Files.createDirectory(clientFolder);
-//                        }
-//                        refreshLists(ta_clientName.getText());
-//                    }
-
                     if (message instanceof AuthForm){
                         AuthForm auth = (AuthForm) message;
                         regController.registrationForm.setVisible(false);

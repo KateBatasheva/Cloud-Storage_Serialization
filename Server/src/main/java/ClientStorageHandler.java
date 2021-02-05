@@ -40,11 +40,6 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 
-//        clientFolder = Paths.get("FolderServer", nickName);
-//        if (!Files.exists(clientFolder)){
-//            Files.createDirectory(clientFolder);
-//        }
-//        ctx.writeAndFlush(new ClientDelails(nickName));
         LOG.debug("Channel for work with client is activated");
     }
 
@@ -66,14 +61,8 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
                     pathFilePackages[i] = new PathFilePackage(sendPack);
                     ctx.writeAndFlush(pathFilePackages[i]);
                 }
-//                ctx.writeAndFlush(new FinishPack());
-//                ctx.writeAndFlush(sendPack);
             }
         }
-//        if (msg instanceof FilePackage) {
-//            FilePackage filePackage = (FilePackage) msg;
-//            Files.write(clientFolder.resolve(filePackage.getFileName()), filePackage.getFileBytes(), StandardOpenOption.CREATE);
-//        }
 
         if (msg instanceof PathFilePackage){
             PathFilePackage pathFilePackage = (PathFilePackage) msg;
@@ -101,8 +90,4 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
     }
 }
 
-//    @Override
-//    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//        clients.remove(ctx);
-//    }
 
