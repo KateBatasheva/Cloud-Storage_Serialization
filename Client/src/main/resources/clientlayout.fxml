@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientStorageController">
+<AnchorPane fx:id="mainStorage" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientStorageController" visible="false">
    <ListView fx:id="listViewClient" layoutX="14.0" layoutY="64.0" prefHeight="272.0" prefWidth="277.0" />
    <ListView fx:id="listViewServer" layoutX="305.0" layoutY="63.0" prefHeight="272.0" prefWidth="277.0" />
 <!--   <TextField fx:id="text" layoutX="14.0" layoutY="344.0" onAction="#sendMessage" prefHeight="36.0" prefWidth="277.0" />-->

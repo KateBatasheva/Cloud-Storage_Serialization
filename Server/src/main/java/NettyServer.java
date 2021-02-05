@@ -16,6 +16,7 @@ public class NettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(NettyServer.class);
 
     public NettyServer() {
+        new DBManager();
         EventLoopGroup auth = new NioEventLoopGroup(1);
         EventLoopGroup worker = new NioEventLoopGroup();
         try {
@@ -28,7 +29,8 @@ public class NettyServer {
                             channel.pipeline().addLast(
                                     new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new ClientStorageHandler());
+//                                    new ClientStorageHandler(),
+                                    new AuthRegHandler());
                         }
                     });
             ChannelFuture future = bootstrap.bind(8189).sync();
