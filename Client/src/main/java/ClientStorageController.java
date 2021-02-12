@@ -10,8 +10,7 @@ import model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -65,20 +64,20 @@ public class ClientStorageController {
                         regController.ta_result.appendText(info.getMessage());
                     }
 
-                    if (message instanceof PathFilePackage) {
-                        PathFilePackage pack = (PathFilePackage) message;
-//                        LOG.debug(String.format("Client received a path # %d of %d paths", pack.getFilePathNum(),pack.getLen()));
-                        if (!Files.exists(clientFolder.resolve(ta_clientName.getText()).resolve(pack.getFileName()))) {
-                            Files.createFile(clientFolder.resolve(ta_clientName.getText()).resolve(pack.getFileName()));
+                    if (message instanceof FilePath) {
+                        FilePath fp = (FilePath) message;
+                        if (!Files.exists(clientFolder.resolve(ta_clientName.getText()).resolve(fp.getFileName()))) {
+                            Files.createFile(clientFolder.resolve(ta_clientName.getText()).resolve(fp.getFileName()));
                         }
-                        Files.write(clientFolder.resolve(ta_clientName.getText()).resolve(pack.getFileName()), pack.getBufferPath(), StandardOpenOption.APPEND);
-//                        LOG.debug(String.format("Client download a path # %d of %d paths", pack.getFilePathNum(),pack.getLen()));
+                        while (!fp.isFinish()) {
+                            Files.write(clientFolder.resolve(ta_clientName.getText()).resolve(fp.getFileName()), fp.getPathData(), StandardOpenOption.APPEND);
+                        }
+                        if (fp.isFinish()) {
+                            Files.write(clientFolder.resolve(ta_clientName.getText()).resolve(fp.getFileName()), fp.getPathData(), StandardOpenOption.APPEND);
+                        }
                     }
-//                            if (message instanceof FilePackage) {
-//                                FilePackage filePackage = (FilePackage) message;
-//                                Files.write(clientFolder.resolve(ta_clientName.getText()).resolve(filePackage.getFileName()), filePackage.getFileBytes(), StandardOpenOption.CREATE);
-//                                refreshLists(ta_clientName.getText());
-//                            }
+
+
                     if (message instanceof RequestRename) {
                         RequestRename fileName = (RequestRename) message;
                         if (Files.exists(clientFolder.resolve(ta_clientName.getText()).resolve(fileName.getOldName()))) {
@@ -145,11 +144,20 @@ public class ClientStorageController {
     public void upload(ActionEvent event) throws IOException {
         Path path = clientFolder.resolve(ta_clientName.getText()).resolve(listViewClient.getSelectionModel().getSelectedItem());
         FilePackage upload = new FilePackage(path);
-        PathFilePackage[] pathFilePackages = new PathFilePackage[upload.getFileBytes().length / 1024 + 1];
-        for (int i = 0; i <= upload.getFileBytes().length / 1024; i++) {
-            pathFilePackages[i] = new PathFilePackage(upload);
-            GoToNet.sendMessToServer(pathFilePackages[i]);
+        DataInputStream in = new DataInputStream(new FileInputStream(String.valueOf(clientFolder.resolve(ta_clientName.getText()).resolve(upload.getFileName()))));
+        FilePath fp;
+        int read;
+        int numberPath = 0;
+        byte[] buffer = new byte[1024];
+        while ((read = in.read(buffer)) != -1) {
+            numberPath++;
+            fp = new FilePath(numberPath, false, upload.getFileName(), buffer);
+            GoToNet.sendMessToServer(fp);
         }
+        numberPath++;
+        fp = new FilePath(numberPath, true, upload.getFileName(), null);
+        GoToNet.sendMessToServer(fp);
+        in.close();
         listViewServer.getItems().add(upload.getFileName());
     }
 

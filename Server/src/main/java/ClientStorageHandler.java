@@ -5,10 +5,7 @@ import model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,7 +42,6 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        LOG.debug("Channel start read");
 
         if (msg instanceof RegistrationForm){
             RegistrationForm reg = (RegistrationForm) msg;
@@ -56,21 +52,23 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
             RequestDownload fileName = (RequestDownload) msg;
             if (Files.exists(clientFolder.resolve(fileName.getName()))) {
                 FilePackage sendPack = new FilePackage(clientFolder.resolve(fileName.getName()));
-                PathFilePackage [] pathFilePackages = new PathFilePackage[sendPack.getFileBytes().length/1024+1];
-                for (int i = 0; i <= sendPack.getFileBytes().length/1024; i++) {
-                    pathFilePackages[i] = new PathFilePackage(sendPack);
-                    ctx.writeAndFlush(pathFilePackages[i]);
+                DataInputStream in = new DataInputStream( new FileInputStream(String.valueOf(clientFolder.resolve(fileName.getName()))));
+                FilePath fp;
+                int read;
+                int numberPath = 0;
+                byte[] buffer = new byte[1024];
+                while ((read = in.read(buffer)) != -1) {
+                    numberPath++;
+                    fp = new FilePath(numberPath, false, fileName.getName(), buffer);
+                    ctx.writeAndFlush(fp);
                 }
+                numberPath++;
+                fp = new FilePath(numberPath, true, fileName.getName(), null);
+                ctx.writeAndFlush(fp);
+                in.close();
             }
         }
 
-        if (msg instanceof PathFilePackage){
-            PathFilePackage pathFilePackage = (PathFilePackage) msg;
-            if (!Files.exists(clientFolder.resolve(pathFilePackage.getFileName()))) {
-                Files.createFile(clientFolder.resolve(pathFilePackage.getFileName()));
-            }
-            Files.write(clientFolder.resolve(pathFilePackage.getFileName()), pathFilePackage.getBufferPath(), StandardOpenOption.APPEND);
-        }
 
         if (msg instanceof RequestRename) {
             RequestRename fileName = (RequestRename) msg;
