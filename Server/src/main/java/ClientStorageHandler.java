@@ -27,10 +27,7 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
             }
         }
     }
-
     //
-//    private static final ConcurrentLinkedDeque<ChannelHandlerContext> clients = new ConcurrentLinkedDeque<>();
-//
     private String nickName;
     private Path clientFolder;
     //
@@ -58,15 +55,29 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
                 int numberPath = 0;
                 byte[] buffer = new byte[1024];
                 while ((read = in.read(buffer)) != -1) {
-                    numberPath++;
-                    fp = new FilePath(numberPath, false, fileName.getName(), buffer);
-                    ctx.writeAndFlush(fp);
+                    if (read < buffer.length) {
+                        byte[] buff = new byte[read];
+                        System.arraycopy(buffer, 0, buff, 0, read);
+                        numberPath++;
+                        fp = new FilePath(numberPath, true, fileName.getName(), null, read);
+                        ctx.writeAndFlush(fp);
+                    } else {
+                        numberPath++;
+                        fp = new FilePath(numberPath, false, fileName.getName(), buffer, read);
+                        ctx.writeAndFlush(fp);
+                    }
                 }
-                numberPath++;
-                fp = new FilePath(numberPath, true, fileName.getName(), null);
-                ctx.writeAndFlush(fp);
                 in.close();
             }
+        }
+
+        if (msg instanceof FilePath){
+            FilePath filePath = (FilePath) msg;
+            if (!Files.exists(clientFolder.resolve(filePath.getFileName()))) {
+                Files.createFile(clientFolder.resolve(filePath.getFileName()));
+            }
+                Files.write(clientFolder.resolve(filePath.getFileName()), filePath.getPathData(), StandardOpenOption.APPEND);
+
         }
 
 
@@ -80,10 +91,10 @@ public class ClientStorageHandler extends ChannelInboundHandlerAdapter {
         }
         if (msg instanceof RequestDelete) {
             RequestDelete fileName = (RequestDelete) msg;
-            if (fileName.getPlaceWhereDelete() == 's'){
+            if (fileName.getPlaceWhereDelete() == 's') {
                 Files.deleteIfExists(clientFolder.resolve(fileName.getFileName()));
             }
-            ctx.writeAndFlush(fileName);
+                ctx.writeAndFlush(fileName);
         }
     }
 }

@@ -69,12 +69,7 @@ public class ClientStorageController {
                         if (!Files.exists(clientFolder.resolve(ta_clientName.getText()).resolve(fp.getFileName()))) {
                             Files.createFile(clientFolder.resolve(ta_clientName.getText()).resolve(fp.getFileName()));
                         }
-                        while (!fp.isFinish()) {
                             Files.write(clientFolder.resolve(ta_clientName.getText()).resolve(fp.getFileName()), fp.getPathData(), StandardOpenOption.APPEND);
-                        }
-                        if (fp.isFinish()) {
-                            Files.write(clientFolder.resolve(ta_clientName.getText()).resolve(fp.getFileName()), fp.getPathData(), StandardOpenOption.APPEND);
-                        }
                     }
 
 
@@ -150,13 +145,18 @@ public class ClientStorageController {
         int numberPath = 0;
         byte[] buffer = new byte[1024];
         while ((read = in.read(buffer)) != -1) {
-            numberPath++;
-            fp = new FilePath(numberPath, false, upload.getFileName(), buffer);
-            GoToNet.sendMessToServer(fp);
+            if (read < buffer.length) {
+                byte[] buff = new byte[read];
+                System.arraycopy(buffer, 0, buff, 0, read);
+                numberPath++;
+                fp = new FilePath(numberPath, true, upload.getFileName(), null, read);
+                GoToNet.sendMessToServer(fp);
+            } else {
+                numberPath++;
+                fp = new FilePath(numberPath, false, upload.getFileName(), buffer, read);
+                GoToNet.sendMessToServer(fp);
+            }
         }
-        numberPath++;
-        fp = new FilePath(numberPath, true, upload.getFileName(), null);
-        GoToNet.sendMessToServer(fp);
         in.close();
         listViewServer.getItems().add(upload.getFileName());
     }

@@ -21,10 +21,13 @@ public class FilePath implements Message{
     private byte[] pathData;
 
 
+    private int dataLen;
 
 
 
-    public FilePath(int numberPath, boolean finish, String fileName, byte[] pathData) {
+
+
+    public FilePath(int numberPath, boolean finish, String fileName, byte[] pathData, int dataLen) {
 
         this.numberPath = numberPath;
 
@@ -34,9 +37,13 @@ public class FilePath implements Message{
 
         this.pathData = pathData;
 
+        this.dataLen = dataLen;
+
     }
 
-
+    public int getDataLen() {
+        return dataLen;
+    }
 
     public int getNumberPath() {
 
